@@ -36,6 +36,8 @@ else ifneq (,$(findstring msys,$(TARGET_MACHINE)))
 WIN32=true
 else ifneq (,$(findstring windows,$(TARGET_MACHINE)))
 WIN32=true
+else ifneq (,$(findstring wasm,$(TARGET_MACHINE)))
+WASM=true
 endif
 
 endif # WIN32
