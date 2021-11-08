@@ -51,6 +51,8 @@
 # define CARLA_OS_BSD
 #elif defined(__GNU__)
 # define CARLA_OS_GNU_HURD
+#elif defined(__EMSCRIPTEN__)
+# define CARLA_OS_WASM
 #else
 # warning Unsupported platform!
 #endif
@@ -320,5 +322,9 @@ typedef unsigned char uchar;
 typedef unsigned long int ulong;
 typedef unsigned short int ushort;
 typedef unsigned int uint;
+
+#ifdef CARLA_OS_WASM
+typedef int ssize_t;
+#endif
 
 #endif /* CARLA_DEFINES_H_INCLUDED */

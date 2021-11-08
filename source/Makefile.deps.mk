@@ -14,34 +14,32 @@ ifneq ($(HAIKU),true)
 ifneq ($(HURD),true)
 ifneq ($(LINUX),true)
 ifneq ($(MACOS),true)
+ifneq ($(WASM),true)
 ifneq ($(WIN32),true)
 
 ifneq (,$(findstring bsd,$(TARGET_MACHINE)))
 BSD=true
-endif
-ifneq (,$(findstring haiku,$(TARGET_MACHINE)))
+else ifneq (,$(findstring haiku,$(TARGET_MACHINE)))
 HAIKU=true
-endif
-ifneq (,$(findstring gnu,$(TARGET_MACHINE)))
-HURD=true
-endif
-ifneq (,$(findstring linux,$(TARGET_MACHINE)))
+else ifneq (,$(findstring linux,$(TARGET_MACHINE)))
 LINUX=true
-endif
-ifneq (,$(findstring apple,$(TARGET_MACHINE)))
+else ifneq (,$(findstring gnu,$(TARGET_MACHINE)))
+HURD=true
+else ifneq (,$(findstring apple,$(TARGET_MACHINE)))
 MACOS=true
-endif
-ifneq (,$(findstring mingw,$(TARGET_MACHINE)))
+else ifneq (,$(findstring mingw,$(TARGET_MACHINE)))
 WIN32=true
 ifneq (,$(findstring x86_64,$(TARGET_MACHINE)))
 WIN64=true
 endif
-endif
-ifneq (,$(findstring msys,$(TARGET_MACHINE)))
+else ifneq (,$(findstring msys,$(TARGET_MACHINE)))
+WIN32=true
+else ifneq (,$(findstring windows,$(TARGET_MACHINE)))
 WIN32=true
 endif
 
 endif # WIN32
+endif # WASM
 endif # MACOS
 endif # LINUX
 endif # HURD
@@ -218,6 +216,7 @@ endif
 # ---------------------------------------------------------------------------------------------------------------------
 # Check for optional libs (special non-pkgconfig tests)
 
+ifneq ($(WASM),true)
 ifneq ($(WIN32),true)
 
 ifeq ($(shell $(PKG_CONFIG) --exists libmagic && echo true),true)
@@ -229,6 +228,7 @@ CFLAGS_WITHOUT_ARCH = $(subst -arch arm64,,$(CFLAGS))
 HAVE_LIBMAGIC = $(shell echo '\#include <magic.h>' | $(CC) $(CFLAGS_WITHOUT_ARCH) -x c -w -c - -o /dev/null 2>/dev/null && echo true)
 endif
 
+endif
 endif
 
 # ---------------------------------------------------------------------------------------------------------------------
