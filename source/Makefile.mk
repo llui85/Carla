@@ -48,9 +48,12 @@ LINK_OPTS += -Wl,-x
 endif
 else
 # Common linker flags
-LINK_OPTS  = -fdata-sections -ffunction-sections -Wl,--gc-sections -Wl,-O1 -Wl,--as-needed
+LINK_OPTS  = -fdata-sections -ffunction-sections -Wl,--gc-sections -Wl,-O1
 ifneq ($(SKIP_STRIPPING),true)
 LINK_OPTS += -Wl,--strip-all
+endif
+ifneq ($(WASM),true)
+LINK_OPTS += -Wl,--as-needed
 endif
 endif
 
@@ -85,8 +88,13 @@ BASE_FLAGS += -DNDEBUG $(BASE_OPTS) -fvisibility=hidden
 CXXFLAGS   += -fvisibility-inlines-hidden
 endif
 
+# ifeq ($(WASM),true)
+# BASE_FLAGS += -s USE_PTHREADS=1
+# LINK_FLAGS += -s USE_PTHREADS=1
+# endif
+
 ifeq ($(WITH_LTO),true)
-BASE_FLAGS += -fno-strict-aliasing -flto -ffat-lto-objects
+BASE_FLAGS += -fno-strict-aliasing -flto
 endif
 
 32BIT_FLAGS = -m32
@@ -97,8 +105,11 @@ BUILD_C_FLAGS   = $(BASE_FLAGS) -std=gnu99 $(CFLAGS)
 BUILD_CXX_FLAGS = $(BASE_FLAGS) -std=gnu++11 $(CXXFLAGS)
 LINK_FLAGS      = $(LINK_OPTS) $(LDFLAGS)
 
-ifneq ($(MACOS),true)
-# Not available on MacOS
+ifeq ($(WASM),true)
+# Web-Assembly has its own dedicated syntax
+LINK_FLAGS += -s LLD_REPORT_UNDEFINED
+else ifneq ($(MACOS),true)
+# And not available on MacOS
 LINK_FLAGS     += -Wl,--no-undefined
 endif
 

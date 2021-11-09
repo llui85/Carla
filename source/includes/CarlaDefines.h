@@ -323,8 +323,4 @@ typedef unsigned long int ulong;
 typedef unsigned short int ushort;
 typedef unsigned int uint;
 
-#ifdef CARLA_OS_WASM
-typedef int ssize_t;
-#endif
-
 #endif /* CARLA_DEFINES_H_INCLUDED */
