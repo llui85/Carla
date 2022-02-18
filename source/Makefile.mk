@@ -201,7 +201,9 @@ ifeq ($(HAVE_PYQT),true)
 BASE_FLAGS += -DHAVE_PYQT
 endif
 
-ifeq ($(HAVE_SDL2),true)
+ifeq ($(HAVE_SDL1),true)
+BASE_FLAGS += -DHAVE_SDL1
+else ifeq ($(HAVE_SDL2),true)
 BASE_FLAGS += -DHAVE_SDL2
 endif
 

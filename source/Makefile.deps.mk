@@ -183,6 +183,7 @@ HAVE_QT4        = $(shell $(PKG_CONFIG) --exists QtCore QtGui && echo true)
 HAVE_QT5        = $(shell $(PKG_CONFIG) --exists Qt5Core Qt5Gui Qt5Widgets && \
                           $(PKG_CONFIG) --variable=qt_config Qt5Core | grep -q -v "static" && echo true)
 HAVE_QT5PKG     = $(shell $(PKG_CONFIG) --silence-errors --variable=prefix Qt5OpenGLExtensions 1>/dev/null && echo true)
+HAVE_SDL1       = $(shell $(PKG_CONFIG) --exists sdl && echo true)
 HAVE_SDL2       = $(shell $(PKG_CONFIG) --exists sdl2 && echo true)
 HAVE_SNDFILE    = $(shell $(PKG_CONFIG) --exists sndfile && echo true)
 
@@ -388,6 +389,11 @@ endif
 ifeq ($(HAVE_QT5),true)
 QT5_FLAGS = $(shell $(PKG_CONFIG) $(PKG_CONFIG_FLAGS) --cflags Qt5Core Qt5Gui Qt5Widgets)
 QT5_LIBS  = $(shell $(PKG_CONFIG) $(PKG_CONFIG_FLAGS) --libs Qt5Core Qt5Gui Qt5Widgets)
+endif
+
+ifeq ($(HAVE_SDL1),true)
+SDL1_FLAGS = $(shell $(PKG_CONFIG) $(PKG_CONFIG_FLAGS) --cflags sdl)
+SDL1_LIBS  = $(shell $(PKG_CONFIG) $(PKG_CONFIG_FLAGS) --libs sdl)
 endif
 
 ifeq ($(HAVE_SDL2),true)

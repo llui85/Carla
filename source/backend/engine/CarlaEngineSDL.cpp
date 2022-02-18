@@ -22,6 +22,11 @@
 
 #include "SDL.h"
 
+#ifndef HAVE_SDL2
+#define AUDIO_F32SYS AUDIO_S16SYS
+typedef int SDL_AudioDeviceID;
+#endif
+
 CARLA_BACKEND_START_NAMESPACE
 
 // -------------------------------------------------------------------------------------------------------------------
@@ -40,12 +45,14 @@ static void initAudioDevicesIfNeeded()
 
     needsInit = false;
 
+#ifdef HAVE_SDL2
     SDL_InitSubSystem(SDL_INIT_AUDIO);
 
     const int numDevices = SDL_GetNumAudioDevices(0);
 
     for (int i=0; i<numDevices; ++i)
         gDeviceNames.append(SDL_GetAudioDeviceName(i, 0));
+#endif
 }
 
 // -------------------------------------------------------------------------------------------------------------------
@@ -88,10 +95,6 @@ public:
             return false;
         }
 
-        const char* deviceName = pData->options.audioDevice != nullptr && pData->options.audioDevice[0] != '\0'
-                               ? pData->options.audioDevice
-                               : nullptr;
-
         SDL_AudioSpec requested, received;
         carla_zeroStruct(requested);
         requested.format = AUDIO_F32SYS;
@@ -101,11 +104,19 @@ public:
         requested.callback = carla_sdl_process_callback;
         requested.userdata = this;
 
+#ifdef HAVE_SDL2
+        const char* const deviceName = pData->options.audioDevice != nullptr && pData->options.audioDevice[0] != '\0'
+                                     ? pData->options.audioDevice
+                                     : nullptr;
+
         int flags = SDL_AUDIO_ALLOW_FREQUENCY_CHANGE;
         if (pData->options.processMode == ENGINE_PROCESS_MODE_PATCHBAY)
             flags |= SDL_AUDIO_ALLOW_CHANNELS_CHANGE;
 
         fDeviceId = SDL_OpenAudioDevice(deviceName, 0, &requested, &received, flags);
+#else
+        fDeviceId = SDL_OpenAudio(&requested, &received) == 0 ? 1 : 0;
+#endif
 
         if (fDeviceId == 0)
         {
@@ -115,7 +126,11 @@ public:
 
         if (received.channels == 0)
         {
+#ifdef HAVE_SDL2
             SDL_CloseAudioDevice(fDeviceId);
+#else
+            SDL_CloseAudio();
+#endif
             fDeviceId = 0;
             setLastError("No output channels available");
             return false;
@@ -139,7 +154,11 @@ public:
 
         pData->graph.create(0, fAudioOutCount, 0, 0);
 
+#ifdef HAVE_SDL2
         SDL_PauseAudioDevice(fDeviceId, 0);
+#else
+        SDL_PauseAudio(0);
+#endif
 
         patchbayRefresh(true, false, false);
 
@@ -165,7 +184,11 @@ public:
         if (fDeviceId != 0)
         {
             // SDL_PauseAudioDevice(fDeviceId, 1);
+#ifdef HAVE_SDL2
             SDL_CloseAudioDevice(fDeviceId);
+#else
+            SDL_CloseAudio();
+#endif
             fDeviceId = 0;
         }
 
@@ -277,7 +300,14 @@ protected:
         CARLA_SAFE_ASSERT_RETURN(stream != nullptr,);
         CARLA_SAFE_ASSERT_RETURN(len > 0,);
 
+#ifdef HAVE_SDL2
+        // direct float type
         float* const fstream = (float*)stream;
+#else
+        // signed 16bit int
+        int16_t* const istream = (int16_t*)stream;
+#endif
+
         const uint ulen = static_cast<uint>(static_cast<uint>(len) / sizeof(float) / fAudioOutCount);
 
         const PendingRtEventsRunner prt(this, ulen, true);
@@ -294,8 +324,18 @@ protected:
 
         // interleave audio back
         for (uint i=0; i < fAudioOutCount; ++i)
+        {
             for (uint j=0; j < ulen; ++j)
+            {
+#ifdef HAVE_SDL2
+                // direct float type
                 fstream[j * fAudioOutCount + i] = fAudioIntBufOut[i][j];
+#else
+                // signed 16bit int
+                istream[j * fAudioOutCount + i] = lrintf(carla_fixedValue(-1.0f, 1.0f, fAudioIntBufOut[i][j]) * 32767.0f);
+#endif
+            }
+        }
     }
 
     // -------------------------------------------------------------------

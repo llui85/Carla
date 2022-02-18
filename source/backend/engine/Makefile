@@ -97,7 +97,7 @@ $(OBJDIR)/CarlaEngineRtAudio.cpp.o: CarlaEngineRtAudio.cpp
 $(OBJDIR)/CarlaEngineSDL.cpp.o: CarlaEngineSDL.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling CarlaEngineSDL.cpp"
-	@$(CXX) $< $(BUILD_CXX_FLAGS) $(SDL2_FLAGS) -c -o $@
+	@$(CXX) $< $(BUILD_CXX_FLAGS) $(SDL1_FLAGS) -c -o $@
 
 ifeq ($(MACOS),true)
 $(OBJDIR)/CarlaEngineNative.cpp.exp.o: CarlaEngineNative.cpp
