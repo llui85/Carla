@@ -201,6 +201,10 @@ ifeq ($(HAVE_PYQT),true)
 BASE_FLAGS += -DHAVE_PYQT
 endif
 
+ifeq ($(HAVE_SDL2),true)
+BASE_FLAGS += -DHAVE_SDL2
+endif
+
 ifeq ($(HAVE_SNDFILE),true)
 BASE_FLAGS += -DHAVE_SNDFILE
 endif
