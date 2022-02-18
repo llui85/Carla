@@ -61,7 +61,7 @@ public:
           fAudioOutCount(0),
           fAudioIntBufOut(nullptr)
     {
-        carla_debug("CarlaEngineSDL::CarlaEngineSDL(%i)", api);
+        carla_debug("CarlaEngineSDL::CarlaEngineSDL()");
 
         // just to make sure
         pData->options.transportMode = ENGINE_TRANSPORT_MODE_INTERNAL;
