@@ -21,6 +21,8 @@ jobs:
           sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list
           sudo apt-get update -qq
           sudo apt-get install -yqq --allow-downgrades libpcre2-8-0/focal libpcre2-16-0/focal libpcre2-32-0/focal libpcre2-posix2/focal
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
       - name: Set up dependencies
         run: |
           sudo dpkg --add-architecture i386
